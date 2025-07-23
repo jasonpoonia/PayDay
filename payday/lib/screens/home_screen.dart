@@ -83,33 +83,33 @@ class HomeScreen extends StatelessWidget {
                   // Welcome section
                   _buildWelcomeSection(),
                   const SizedBox(height: 24),
-                  
+
                   // Balance overview
                   const BalanceCard(),
                   const SizedBox(height: 16),
-                  
+
                   // Next payday countdown
                   const NextPaydayCard(),
                   const SizedBox(height: 24),
-                  
+
                   // Budget allocation chart
                   _buildSectionHeader('Budget Allocation'),
                   const SizedBox(height: 12),
                   const BudgetAllocationChart(),
                   const SizedBox(height: 24),
-                  
+
                   // Financial goals
                   _buildSectionHeader('Financial Goals'),
                   const SizedBox(height: 12),
                   const GoalsProgressCard(),
                   const SizedBox(height: 24),
-                  
+
                   // Recent transactions
                   _buildSectionHeader('Recent Activity'),
                   const SizedBox(height: 12),
                   const RecentTransactionsCard(),
                   const SizedBox(height: 24),
-                  
+
                   // Quick actions
                   _buildQuickActions(context),
                   const SizedBox(height: 24),
@@ -146,35 +146,49 @@ class HomeScreen extends StatelessWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColors.primary,
-            AppColors.primaryDark,
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
+        color: AppColors.cardBackground,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: AppColors.cardShadow,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Text(
-            '$greeting, Alex!',
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '$greeting, Alex! 👋',
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Your money is working smarter with automated pay splitting',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: AppColors.textSecondary,
+                    height: 1.4,
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 8),
-          const Text(
-            'Your money is working smarter with automated pay splitting',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.white70,
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              gradient: AppColors.primaryGradient,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: const Icon(
+              Icons.auto_awesome,
+              color: Colors.white,
+              size: 28,
             ),
           ),
         ],
@@ -228,7 +242,8 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildActionCard(String title, IconData icon, Color color, VoidCallback onTap) {
+  Widget _buildActionCard(
+      String title, IconData icon, Color color, VoidCallback onTap) {
     return Card(
       child: InkWell(
         onTap: onTap,
