@@ -26,6 +26,10 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   
+  # Assets
+  assets:
+    - assets/images/
+  
   # Add custom fonts if needed
   # fonts:
   #   - family: Inter

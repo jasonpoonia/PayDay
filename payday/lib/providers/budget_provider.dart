@@ -2,161 +2,244 @@ import 'package:flutter/foundation.dart';
 import '../models/budget_model.dart';
 
 class BudgetProvider extends ChangeNotifier {
-  // Mock data for MVP
-  double _monthlyIncome = 5200.0; // NZ$5,200 monthly salary
-  double _currentBalance = 1850.0;
-  
-  final List<BudgetRule> _budgetRules = [
-    const BudgetRule(
+  // Income allocation focused data
+  double _nextPayAmount = 5200.0; // Next expected income
+  DateTime _nextPayDate = DateTime.now().add(const Duration(days: 3));
+
+  final List<AllocationRule> _allocationRules = [
+    const AllocationRule(
       id: '1',
       name: 'Emergency Fund',
       percentage: 15.0,
-      fixedAmount: 0,
+      currentAmount: 4200.0,
+      targetAmount: 15000.0,
       accountType: 'Savings',
-      isPercentage: true,
       icon: '🛡️',
       colorIndex: 0,
+      isActive: true,
     ),
-    const BudgetRule(
+    const AllocationRule(
       id: '2',
-      name: 'Bills & Rent',
-      percentage: 45.0,
-      fixedAmount: 0,
-      accountType: 'Checking',
-      isPercentage: true,
-      icon: '🏠',
-      colorIndex: 1,
-    ),
-    const BudgetRule(
-      id: '3',
-      name: 'Long-term Savings',
-      percentage: 20.0,
-      fixedAmount: 0,
+      name: 'Investment Account',
+      percentage: 25.0,
+      currentAmount: 12500.0,
+      targetAmount: 50000.0,
       accountType: 'Investment',
-      isPercentage: true,
-      icon: '💰',
-      colorIndex: 2,
+      icon: '📈',
+      colorIndex: 1,
+      isActive: true,
     ),
-    const BudgetRule(
-      id: '4',
-      name: 'Spending Money',
-      percentage: 20.0,
-      fixedAmount: 0,
-      accountType: 'Checking',
-      isPercentage: true,
-      icon: '🛍️',
-      colorIndex: 3,
-    ),
-  ];
-
-  final List<Transaction> _recentTransactions = [
-    Transaction(
-      id: '1',
-      description: 'Salary Deposit',
-      amount: 5200.0,
-      date: DateTime.now().subtract(const Duration(days: 2)),
-      category: 'Income',
-      type: TransactionType.income,
-    ),
-    Transaction(
-      id: '2',
-      description: 'Emergency Fund Transfer',
-      amount: -780.0,
-      date: DateTime.now().subtract(const Duration(days: 2)),
-      category: 'Savings',
-      type: TransactionType.transfer,
-    ),
-    Transaction(
+    const AllocationRule(
       id: '3',
-      description: 'Rent Payment',
-      amount: -1800.0,
-      date: DateTime.now().subtract(const Duration(days: 1)),
-      category: 'Bills',
-      type: TransactionType.expense,
+      name: 'House Deposit',
+      percentage: 30.0,
+      currentAmount: 35000.0,
+      targetAmount: 80000.0,
+      accountType: 'Savings',
+      icon: '🏠',
+      colorIndex: 2,
+      isActive: true,
     ),
-    Transaction(
+    const AllocationRule(
       id: '4',
-      description: 'Grocery Shopping',
-      amount: -145.50,
-      date: DateTime.now(),
-      category: 'Food',
-      type: TransactionType.expense,
+      name: 'Holiday Fund',
+      percentage: 10.0,
+      currentAmount: 1850.0,
+      targetAmount: 5000.0,
+      accountType: 'Savings',
+      icon: '✈️',
+      colorIndex: 3,
+      isActive: true,
+    ),
+    const AllocationRule(
+      id: '5',
+      name: 'Everyday Spending',
+      percentage: 10.0,
+      currentAmount: 1200.0,
+      targetAmount: null,
+      accountType: 'Checking',
+      icon: '💳',
+      colorIndex: 4,
+      isActive: true,
     ),
   ];
 
-  final List<GoalProgress> _financialGoals = [
-    GoalProgress(
-      name: 'Emergency Fund',
-      current: 4200.0,
-      target: 15000.0,
-      targetDate: DateTime(2025, 12, 31),
+  final List<AutoTransfer> _recentAutoTransfers = [
+    AutoTransfer(
+      id: '1',
+      destinationName: 'Emergency Fund',
+      amount: 780.0,
+      transferDate: DateTime.now().subtract(const Duration(days: 2)),
+      status: AutoTransferStatus.completed,
       icon: '🛡️',
     ),
-    GoalProgress(
-      name: 'House Deposit',
-      current: 12500.0,
-      target: 80000.0,
-      targetDate: DateTime(2027, 6, 30),
+    AutoTransfer(
+      id: '2',
+      destinationName: 'Investment Account',
+      amount: 1300.0,
+      transferDate: DateTime.now().subtract(const Duration(days: 2)),
+      status: AutoTransferStatus.completed,
+      icon: '📈',
+    ),
+    AutoTransfer(
+      id: '3',
+      destinationName: 'House Deposit',
+      amount: 1560.0,
+      transferDate: DateTime.now().subtract(const Duration(days: 2)),
+      status: AutoTransferStatus.completed,
       icon: '🏠',
     ),
-    GoalProgress(
-      name: 'Holiday Fund',
-      current: 850.0,
-      target: 3000.0,
-      targetDate: DateTime(2025, 11, 15),
+    AutoTransfer(
+      id: '4',
+      destinationName: 'Holiday Fund',
+      amount: 520.0,
+      transferDate: DateTime.now().subtract(const Duration(days: 2)),
+      status: AutoTransferStatus.completed,
       icon: '✈️',
     ),
   ];
 
   // Getters
-  double get monthlyIncome => _monthlyIncome;
-  double get currentBalance => _currentBalance;
-  List<BudgetRule> get budgetRules => _budgetRules;
-  List<Transaction> get recentTransactions => _recentTransactions;
-  List<GoalProgress> get financialGoals => _financialGoals;
+  double get nextPayAmount => _nextPayAmount;
+  DateTime get nextPayDate => _nextPayDate;
+  List<AllocationRule> get allocationRules => _allocationRules;
+  List<AutoTransfer> get recentAutoTransfers => _recentAutoTransfers;
 
-  // Calculate allocations based on current income
-  Map<String, double> get budgetAllocations {
-    Map<String, double> allocations = {};
-    for (var rule in _budgetRules) {
-      allocations[rule.name] = rule.getAmount(_monthlyIncome);
-    }
-    return allocations;
+  // Calculate total allocated percentage
+  double get totalAllocatedPercentage {
+    return _allocationRules
+        .where((rule) => rule.isActive)
+        .map((rule) => rule.percentage)
+        .fold(0.0, (sum, percentage) => sum + percentage);
   }
 
-  // Get total allocated amount
-  double get totalAllocated {
-    return budgetAllocations.values.fold(0.0, (sum, amount) => sum + amount);
+  // Calculate total allocated amount for next pay
+  double get totalAllocatedAmount {
+    return (_nextPayAmount * totalAllocatedPercentage / 100);
   }
 
-  // Get remaining unallocated amount
+  // Calculate unallocated amount
   double get unallocatedAmount {
-    return _monthlyIncome - totalAllocated;
+    return _nextPayAmount - totalAllocatedAmount;
   }
 
-  // Mock method to simulate next payday automation
-  DateTime get nextPayday {
+  // Calculate unallocated percentage
+  double get unallocatedPercentage {
+    return 100 - totalAllocatedPercentage;
+  }
+
+  // Get allocation amount for specific rule
+  double getAllocationAmount(AllocationRule rule) {
+    return _nextPayAmount * rule.percentage / 100;
+  }
+
+  // Check if automation is active
+  bool get isAutomationActive {
+    return _allocationRules.any((rule) => rule.isActive);
+  }
+
+  // Get days until next payday
+  int get daysUntilNextPay {
     final now = DateTime.now();
-    final daysUntilFriday = (5 - now.weekday) % 7;
-    final nextFriday = now.add(Duration(days: daysUntilFriday == 0 ? 7 : daysUntilFriday));
-    return DateTime(nextFriday.year, nextFriday.month, nextFriday.day, 9, 0);
+    final difference = _nextPayDate.difference(now);
+    return difference.inDays;
   }
 
-  // Update income (for future functionality)
-  void updateMonthlyIncome(double newIncome) {
-    _monthlyIncome = newIncome;
+  // Get next auto-transfer time
+  String get nextAutoTransferTime {
+    // Assuming transfers happen at 9 AM on payday
+    final transferTime = DateTime(
+      _nextPayDate.year,
+      _nextPayDate.month,
+      _nextPayDate.day,
+      9,
+      0,
+    );
+
+    final weekday = [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday'
+    ];
+    return '${weekday[transferTime.weekday - 1]}, 9:00 AM';
+  }
+
+  // Active allocation rules only
+  List<AllocationRule> get activeAllocationRules {
+    return _allocationRules.where((rule) => rule.isActive).toList();
+  }
+
+  // Get top 3 allocations by amount
+  List<AllocationRule> get topAllocations {
+    final sorted = List<AllocationRule>.from(_allocationRules);
+    sorted.sort((a, b) => b.percentage.compareTo(a.percentage));
+    return sorted.take(3).toList();
+  }
+
+  // Update next pay amount
+  void updateNextPayAmount(double newAmount) {
+    _nextPayAmount = newAmount;
     notifyListeners();
   }
 
-  // Add new budget rule (for future functionality)
-  void addBudgetRule(BudgetRule rule) {
-    _budgetRules.add(rule);
+  // Add new allocation rule
+  void addAllocationRule(AllocationRule rule) {
+    _allocationRules.add(rule);
     notifyListeners();
   }
 
-  // Remove budget rule (for future functionality)
-  void removeBudgetRule(String ruleId) {
-    _budgetRules.removeWhere((rule) => rule.id == ruleId);
+  // Update allocation rule
+  void updateAllocationRule(String ruleId, AllocationRule updatedRule) {
+    final index = _allocationRules.indexWhere((rule) => rule.id == ruleId);
+    if (index != -1) {
+      _allocationRules[index] = updatedRule;
+      notifyListeners();
+    }
+  }
+
+  // Remove allocation rule
+  void removeAllocationRule(String ruleId) {
+    _allocationRules.removeWhere((rule) => rule.id == ruleId);
+    notifyListeners();
+  }
+
+  // Toggle allocation rule active status
+  void toggleAllocationRule(String ruleId) {
+    final index = _allocationRules.indexWhere((rule) => rule.id == ruleId);
+    if (index != -1) {
+      final rule = _allocationRules[index];
+      _allocationRules[index] = AllocationRule(
+        id: rule.id,
+        name: rule.name,
+        percentage: rule.percentage,
+        currentAmount: rule.currentAmount,
+        targetAmount: rule.targetAmount,
+        accountType: rule.accountType,
+        icon: rule.icon,
+        colorIndex: rule.colorIndex,
+        isActive: !rule.isActive,
+      );
+      notifyListeners();
+    }
+  }
+
+  // Simulate auto-transfer execution
+  void executeAutoTransfers() {
+    for (final rule in activeAllocationRules) {
+      final transfer = AutoTransfer(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        destinationName: rule.name,
+        amount: getAllocationAmount(rule),
+        transferDate: DateTime.now(),
+        status: AutoTransferStatus.processing,
+        icon: rule.icon,
+      );
+      _recentAutoTransfers.insert(0, transfer);
+    }
     notifyListeners();
   }
 }
