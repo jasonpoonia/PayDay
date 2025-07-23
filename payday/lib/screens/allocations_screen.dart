@@ -31,16 +31,15 @@ class AllocationsScreen extends StatelessWidget {
                 // Monthly allocation overview
                 _buildAllocationOverview(budgetProvider),
                 const SizedBox(height: 24),
-                
+
                 // Current allocation rules
                 _buildSectionHeader('Current Rules'),
                 const SizedBox(height: 16),
-                ...budgetProvider.budgetRules.map((rule) => 
-                  _buildAllocationRuleCard(rule, budgetProvider)
-                ),
-                
+                ...budgetProvider.budgetRules.map((rule) =>
+                    _buildAllocationRuleCard(context, rule, budgetProvider)),
+
                 const SizedBox(height: 24),
-                
+
                 // Add new allocation button
                 _buildAddAllocationCard(context),
               ],
@@ -53,7 +52,7 @@ class AllocationsScreen extends StatelessWidget {
 
   Widget _buildAllocationOverview(BudgetProvider provider) {
     final formatter = NumberFormat.currency(locale: 'en_NZ', symbol: '\$');
-    
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -147,11 +146,13 @@ class AllocationsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAllocationRuleCard(dynamic rule, BudgetProvider provider) {
+  Widget _buildAllocationRuleCard(
+      BuildContext context, dynamic rule, BudgetProvider provider) {
     final formatter = NumberFormat.currency(locale: 'en_NZ', symbol: '\$');
     final amount = provider.budgetAllocations[rule.name] ?? 0;
-    final color = AppColors.categoryColors[rule.colorIndex % AppColors.categoryColors.length];
-    
+    final color = AppColors
+        .categoryColors[rule.colorIndex % AppColors.categoryColors.length];
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(20),
