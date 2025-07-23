@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'providers/budget_provider.dart';
-import 'screens/home_screen.dart';
+import 'screens/main_navigation.dart';
 import 'utils/app_colors.dart';
 
 void main() {
@@ -19,7 +19,7 @@ class PaydayApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => BudgetProvider()),
       ],
       child: MaterialApp(
-        title: 'Payday',
+        title: 'PayDay',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           useMaterial3: true,
@@ -104,8 +104,25 @@ class PaydayApp extends StatelessWidget {
               borderRadius: BorderRadius.all(Radius.circular(20)),
             ),
           ),
+
+          // Bottom Navigation Bar Theme
+          bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+            backgroundColor: Colors.white,
+            selectedItemColor: AppColors.primary,
+            unselectedItemColor: AppColors.textSecondary,
+            type: BottomNavigationBarType.fixed,
+            elevation: 0,
+            selectedLabelStyle: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+            unselectedLabelStyle: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ),
-        home: const HomeScreen(),
+        home: const MainNavigation(),
       ),
     );
   }
